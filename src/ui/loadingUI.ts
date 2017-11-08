@@ -4,25 +4,54 @@ namespace layer.ui {
 		constructor()
 		{
 			super();
-			this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
 		};
 
-		private onAddToStage(event: egret.Event) : void
+		public onAddedToStage(e: egret.Event) : void
 		{
+			this.removeChildren();
+			this.graphics.clear();
+
 			this.textField = new egret.TextField();
-			this.addChild(this.textField);
 			this.textField.y = (this.stage.stageHeight - 100) / 2;
 			this.textField.width = this.stage.stageWidth;
 			this.textField.height = 100;
-			this.textField.textAlign = "center";
-		};
+			this.textField.textAlign = egret.HorizontalAlign.CENTER;
+			this.textField.verticalAlign = egret.VerticalAlign.MIDDLE;
+			this.addChild(this.textField);
+		}
+
+		public onRemovedFromStage(e: egret.Event) : void
+		{
+			this.removeAllEventListeners();
+		}
+
+		public removeAllEventListeners() : void
+		{
+			RES.removeEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
+			RES.removeEventListener(RES.ResourceEvent.CONFIG_LOAD_ERROR, this.onConfigError, this);
+			RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
+			RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
+			RES.removeEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
+			RES.removeEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
+		}
+
+		public bindEvents() : void {
+			RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
+			RES.addEventListener(RES.ResourceEvent.CONFIG_LOAD_ERROR, this.onConfigError, this);
+			RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
+			RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
+			RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
+			RES.addEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
+		}
+
+
 
 		/**
 		 * [setProgress description]
 		 * @param {number} current [description]
 		 * @param {number} total   [description]
 		 */
-		setProgress(current: number, total: number) : void {
+		public setProgress(current: number, total: number) : void {
 			if (!this.textField) return;
 			let percent:number = total > 0 ? current / total * 100 : 0;
 			if (percent > 100) percent = 100;
@@ -35,21 +64,13 @@ namespace layer.ui {
 		 * @param {Function}      onComplete    [description]
 		 * @param {any}           thisObject    [description]
 		 */
-		loadConfig(resourceFiles: Array<string>, onComplete: Function, thisObject: any) : void {
-			let _onComplete:(event: RES.ResourceEvent) => void = function(event: RES.ResourceEvent){
-				RES.removeEventListener(RES.ResourceEvent.CONFIG_COMPLETE, _onComplete, this);
-				if (onComplete) onComplete.call(thisObject ? thisObject : this, event);
-			};
-			RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, _onComplete, this);
-			RES.addEventListener(RES.ResourceEvent.CONFIG_LOAD_ERROR, this.onConfigLoadErr, this);
+		public loadConfig(resourceFiles: Array<string>) : Promise<void> {
 
-			for(let i:number = 0; i < resourceFiles.length; i++)
-				RES.loadConfig(resourceFiles[i], resourceFiles[i].replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '') + '/');
-		};
-
-		private onConfigLoadErr(event: RES.ResourceEvent) : void {
-
-		};
+			return new Promise<void>((resolve: (value?:any) => void, reject: (reason?: any) => void) => {
+				for(let i:number = 0; i < resourceFiles.length; i++)
+					RES.loadConfig(resourceFiles[i], resourceFiles[i].replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '') + '/');
+			});
+		}
 
 		/**
 		 * 读取Group文件
@@ -57,22 +78,23 @@ namespace layer.ui {
 		 * @param {Function} onComplete [description]
 		 * @param {any}      thisObject [description]
 		 */
-		loadGroup(name: string, onComplete: Function, thisObject: any) : void {
-			let _onComplete:(event: RES.ResourceEvent) => void = function(event: RES.ResourceEvent) {
-				if (event.groupName == name) {
-					RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE, _onComplete, this);
-					RES.removeEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
-					RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
-					RES.removeEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
-					if (onComplete) onComplete.call(thisObject ? thisObject : this, event, name);
-				}
-			};
-			RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, _onComplete, this);
-			RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
-			RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
-			RES.addEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
+		public loadGroup(name: string) : Promise<void> {
+			return new Promise<void>((resolve: (value?:any) => void, reject: (reason?: any) => void) => {
+				RES.loadGroup(name);
+			});
 
-			RES.loadGroup(name);
+		};
+
+		private onConfigError(event: RES.ResourceEvent): void {
+			
+		}
+
+		private onConfigComplete(event: RES.ResourceEvent): void {
+			
+		}
+
+		private onResourceLoadComplete(event: RES.ResourceEvent) : void {
+			
 		};
 
 		private onItemLoadError(event: RES.ResourceEvent) : void {

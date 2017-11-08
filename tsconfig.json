@@ -4,7 +4,12 @@
 		"noImplicitAny": false,
 		"sourceMap": false,
 		"declaration": true,
-		"outFile": "bin/layer.js"
+		"outFile": "bin/layer.js",
+		"lib": [
+			"es5",
+			"dom",
+			"es2015.promise"
+		]
 	},
 	"include": [
 		"src"

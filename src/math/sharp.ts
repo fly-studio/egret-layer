@@ -28,9 +28,9 @@ namespace layer.math {
 	 * @param {egret3d.Vector3D} p2 3D坐标2
 	 * @return {}
 	 */
-	export function distance3D(p1:egret3d.Vector3D, p2:egret3d.Vector3D) {
+/* 	export function distance3D(p1:egret3d.Vector3D, p2:egret3d.Vector3D) {
 		return Math.pow(Math.pow(Math.abs(p2.x - p1.x), 2) + Math.pow(Math.abs(p2.y - p1.y), 2) + Math.pow(Math.abs(p2.z - p1.z), 2), 0.5);
-	};
+	}; */
 	/**
 	 * 计算点旋转之后的新坐标
 	 * http://keisan.casio.com/exec/system/1223522781
