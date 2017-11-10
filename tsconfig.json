@@ -1,14 +1,14 @@
 {
 	"compilerOptions": {
+		"module": "amd",
 		"target": "es5",
 		"noImplicitAny": false,
-		"sourceMap": false,
+		"sourceMap": true,
 		"declaration": true,
 		"outFile": "bin/layer.js",
 		"lib": [
-			"es5",
 			"dom",
-			"es2015.promise"
+			"es6"
 		]
 	},
 	"include": [
