@@ -8,9 +8,13 @@
 		"outFile": "bin/layer.js",
 		"lib": [
 			"dom",
-			"es6"
+			"es6",
+			"es7"
 		]
 	},
+	"files": [
+		"../features/bin/features.d.ts"
+	],
 	"include": [
 		"src"
 	]
