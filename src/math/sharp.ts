@@ -1,6 +1,6 @@
 //http://www.jeffreythompson.org/collision-detection/
 
-namespace layer.math {
+namespace layer.sharp {
 	export enum DIRECTION {
 		N, //Noth
 		NE, //NothEast

@@ -244,9 +244,10 @@ namespace layer.ui {
 			if (titleSprite) {
 				//title touch
 				titleSprite.touchEnabled = true;
-				titleSprite.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onTouchBegin, this, true);
-				titleSprite.addEventListener(egret.TouchEvent.TOUCH_END, this.onTouchEnd, this, true);
-				titleSprite.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchMove, this, true);
+				titleSprite.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onTouchBegin, this);
+				titleSprite.addEventListener(egret.TouchEvent.TOUCH_END, this.onTouchEnd, this);
+				titleSprite.addEventListener(egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.onTouchEnd, this);
+				titleSprite.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchMove, this);
 			}
 
 			let buttonsSprite:egret.Sprite = this.tipSprite.getChildByName('buttons') as egret.Sprite;
@@ -262,11 +263,9 @@ namespace layer.ui {
 		{
 			let titleSprite:egret.Sprite = this.tipSprite.getChildByName('title') as egret.Sprite;
 			if (titleSprite) {
-				titleSprite.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onTouchBegin, this, true);
 				titleSprite.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onTouchBegin, this);
-				titleSprite.removeEventListener(egret.TouchEvent.TOUCH_END, this.onTouchEnd, this, true);
 				titleSprite.removeEventListener(egret.TouchEvent.TOUCH_END, this.onTouchEnd, this);
-				titleSprite.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchMove, this, true);
+				titleSprite.removeEventListener(egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.onTouchEnd, this);
 				titleSprite.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchMove, this);
 			}
 
