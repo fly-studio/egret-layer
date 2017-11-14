@@ -17,4 +17,24 @@ namespace layer.array {
 			intersection = intersection.filter(x => !arr.includes(x));
 		return unique<T>(intersection);
 	};
+
+	export function* xrange(start: number, stop?: number, step: number = 1) {
+		if (stop == null) {
+			stop = start;
+			start = 0;
+		}
+		let i:number = start;
+		if (step < 0) {
+			while (i > stop) {
+				yield i;
+				i += step;
+			}
+		}
+		else {
+			while (i < stop) {
+				yield i;
+				i += step;
+			}
+		}
+	}
 }

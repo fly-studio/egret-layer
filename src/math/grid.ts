@@ -91,31 +91,31 @@ namespace layer
 				col = this.col(rowOrIndex);
 			}
 			let indices: number[] = [].concat(this.rowIndices(row), this.colIndices(col));
-			return layer.array.unique(indices);
+			return _.uniq(indices);
 		}
 
 		/**
 		 * 返回一个可遍历的Rows
 		 * 
 		 */
-		public rowsEntries(): IterableIterator<number> {
-			return _.range(this.rows);
+		public *rowsEntries(step: number = 1): IterableIterator<number> {
+			yield* step > 0 ? _.range(0, this.rows, Math.abs(step)) : _.rangeRight(0, this.rows, Math.abs(step));
 		}
 
 		/**
 		 * 返回一个可遍历的Cols
 		 * 
 		 */
-		public colsEntries(): IterableIterator<number>{
-			return _.range(this.cols);
+		public *colsEntries(step: number = 1): IterableIterator<number>{
+			yield* step > 0 ? _.range(0, this.cols, Math.abs(step)) : _.rangeRight(0, this.cols, Math.abs(step));
 		}
 
 		/**
 		 * 返回一个可遍历的Indices
 		 * 
 		 */
-		public indicesEntries(): IterableIterator<number>{
-			return _.range(this.size);
+		public *indicesEntries(step: number = 1): IterableIterator<number>{
+			yield* step > 0 ? _.range(0, this.size, Math.abs(step)) : _.rangeRight(0, this.size, Math.abs(step));
 		}
 
 	}

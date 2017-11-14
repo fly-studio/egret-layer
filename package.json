@@ -1,3 +1,6 @@
 {
-	"name": "layer"
+  "name": "layer",
+  "devDependencies": {
+    "@types/lodash": "^4.14.85"
+  }
 }
