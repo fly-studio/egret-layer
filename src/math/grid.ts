@@ -56,8 +56,8 @@ namespace layer
 		 */
 		public rowIndices(row: number): number[] {
 			let indices: number[] = [];
-			for (let i = 0; i < this.cols; ++i)
-				indices.push(this.index(row, i));
+			for (let col of this.colsEntries())
+				indices.push(this.index(row, col));
 			return indices;
 		}
 
@@ -67,8 +67,8 @@ namespace layer
 		 */
 		public colIndices(col: number): number[] {
 			let indices: number[] = [];
-			for (let i = 0; i < this.rows; ++i)
-				indices.push(this.index(i, col));
+			for (let row of this.rowsEntries())
+				indices.push(this.index(row, col));
 			return indices;
 		}
 
