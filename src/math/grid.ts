@@ -50,6 +50,13 @@ namespace layer
 		}
 
 		/**
+		 * 所有索引
+		 */
+		public indices() : number[] {
+			return _.range(0, this.size);
+		}
+
+		/**
 		 * 返回 某行 的所有 索引
 		 * 
 		 * @param row 
