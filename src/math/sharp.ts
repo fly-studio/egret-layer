@@ -2,20 +2,48 @@
 
 namespace layer.sharp {
 	export enum DIRECTION {
-		N, //Noth
-		NE, //NothEast
-		E, //East
-		SE, //SouthEast
-		S, //South
-		SW, //SouthWest
-		W, //West
-		NW //NothWest
+		N = 0, //Noth
+		NE = 1, //NothEast
+		E = 2, //East
+		SE = 3, //SouthEast
+		S = 4, //South
+		SW = 5, //SouthWest
+		W = 6, //West
+		NW = 7, //NothWest
+		North = 0,
+		Northeast = 1,
+		East = 2,
+		Southeast = 3,
+		South = 4,
+		Southwest = 5,
+		West = 6,
+		Nothwest = 7,
+		NORTH = 0,
+		NORTHEAST = 1,
+		EAST = 2,
+		SOUTHEAST = 3,
+		SOUTH = 4,
+		SOUTHWEST = 5,
+		WEST = 6,
+		NOTHWEST = 7
 	}; 
 	export enum POSITION {
-		TOP,
-		RIGHT,
-		BOTTOM,
-		LEFT
+		TOP = 0,
+		RIGHT = 1,
+		BOTTOM = 2,
+		LEFT = 3,
+		Top = 0,
+		Right = 1,
+		Bottom = 2,
+		Left = 3,
+		UP = 0,
+		FORWARD = 1,
+		DOWN = 2,
+		BACKWARD = 3,
+		Up = 0,
+		Forward = 1,
+		Down = 2,
+		Backward = 3
 	};
 
 	/**
