@@ -46,18 +46,13 @@ namespace layer.ui {
 		 */
 		public async load()
 		{
-			if (!this.configList.length || !this.groupList.length) {
+			if (this.configList.length + this.groupList.length <= 0) {
 				throw new Error('Please set configList/groupList first.'); // runtime error
 			}
 			//config
 			let promises: Promise<any>[] = [];
 			for (let config of this.configList) {
 				let dfd = this.loadConfig(config);
-				this.status.set('config: ' + config.resourceFile, {
-					dfd,
-					loaded: 0,
-					total: 1
-				});
 				promises.push(dfd.promise());
 			}
 			await Promise.all(promises); //等待全部config读取完毕
@@ -67,11 +62,6 @@ namespace layer.ui {
 			for (let group of this.groupList)
 			{
 				let dfd = this.loadGroup(group);
-				this.status.set(group, {
-					dfd : dfd,
-					loaded: 0,
-					total: RES.getGroupByName(group).length,
-				});
 				promises.push(dfd.promise());
 			}
 			return await Promise.all(promises); // 同时请求这几个Group
@@ -128,7 +118,7 @@ namespace layer.ui {
 		 */
 		public setProgress(current: number, total: number, resource?: RES.ResourceItem) : void {
 			if (!this.textField) return;
-			let percent:number = total > 0 ? current / total * 100 : 0;
+			let percent: number = total > 0 ? current / total * 100 : 0;
 			if (percent > 100) percent = 100;
 			this.textField.text = "Loading..." + Math.round(percent) + '%';
 		};
@@ -142,6 +132,12 @@ namespace layer.ui {
 		private loadConfig(resourceConfig: ResourceConfig): DeferredPromise {
 			var dfd = new DeferredPromise();
 			let { resourceFile, path } = resourceConfig;
+			// 必須先添加到Map 不然已緩存的項目的成功事件會在loadConfig就觸發了
+			this.status.set('config: ' + resourceFile, {
+				dfd,
+				loaded: 0,
+				total: 1
+			});
 			RES.loadConfig(resourceFile, path || resourceFile.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '') + '/');
 			return dfd;
 		}
@@ -154,13 +150,19 @@ namespace layer.ui {
 		 */
 		private loadGroup(groupName: string) : DeferredPromise {
 			var dfd = new DeferredPromise();
+			// 必須先添加到Map 不然已緩存的項目中 成功事件會在loadGroup就觸發了
+			this.status.set(groupName, {
+				dfd,
+				loaded: 0,
+				total: RES.getGroupByName(groupName).length,
+			});
 			RES.loadGroup(groupName);
 			return dfd;
 		};
 
 		private onConfigError(event: RES.ResourceEvent): void {
 			//此函数只报错，但是不知道是那个config，具体还是需要去process中处理
-			
+
 		}
 
 		private onConfigComplete(event: RES.ResourceEvent): void {
@@ -169,8 +171,10 @@ namespace layer.ui {
 
 		private onResourceLoadComplete(event: RES.ResourceEvent) : void {
 			if (DEBUG) console.warn("Group:" + event.groupName + " loaded successful.");
-			
+
 			if (this.status.has(event.groupName)) {
+				if (DEBUG) console.warn("Group:" + event.groupName + " resolved.");
+
 				let status = this.status.get(event.groupName);
 				status.dfd.resolve(event.groupName);
 				status.loaded = status.total;
@@ -180,7 +184,7 @@ namespace layer.ui {
 		private onItemLoadError(event: RES.ResourceEvent) : void {
 			if (DEBUG) console.log("Url:" + event.resItem.url + " has failed to load");
 			//Config 失败
-			if (event.groupName == "RES__CONFIG") { 
+			if (event.groupName == "RES__CONFIG") {
 				let name = 'config: ' + (event.resItem && event.resItem.name ? event.resItem.name : '');
 				if (this.status.has(name)) {
 					let status = this.status.get(name);
@@ -210,7 +214,7 @@ namespace layer.ui {
 						status.dfd.resolve(event.resItem.name); //成功
 					} else {
 						// 如果在同一个LoadingUI下 设置相同的resourceFile路径，第二个会因为有缓存而读取失败
-						status.dfd.reject(event.resItem.name); //失败	
+						status.dfd.reject(event.resItem.name); //失败
 					}
 				}
 			} else {
@@ -219,7 +223,7 @@ namespace layer.ui {
 					status.loaded = event.itemsLoaded;
 				}
 			}
-			
+
 			let total: number = 0, loaded: number = 0;
 			this.status.forEach(status => {
 				total += status.total;

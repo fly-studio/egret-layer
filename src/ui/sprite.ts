@@ -22,8 +22,12 @@ namespace layer.ui {
 			this.y = value.y;
 		}
 
-		public addToStage(stage?:egret.Stage) : void {
-			stage = stage instanceof egret.Stage ? stage : egret.lifecycle.stage as egret.Stage;
+		public getStage() {
+			return this.stage instanceof egret.Stage ? this.stage : egret.lifecycle.stage as egret.Stage;
+		}
+
+		public addToStage(stage?: egret.Stage) : void {
+			stage = this.stage == null ? this.getStage() : stage;
 			stage.addChild(this);
 		}
 
@@ -36,6 +40,6 @@ namespace layer.ui {
 		public abstract onRemovedFromStage(e: egret.Event) : void;
 
 		public abstract removeAllEventListeners() : void;
-		
+
 	}
 }
