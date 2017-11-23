@@ -36,9 +36,9 @@ namespace layer.http {
 						resolve(data);
 					else
 						reject(data);
-				}).catch(error => {
+				}, error => {
 					if (this.autoTip)
-						layer.ui.alert(error);
+						layer.ui.alert(error instanceof Error ? error.message : error.toString());
 					reject(error);
 				});
 			})
