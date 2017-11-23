@@ -21,7 +21,7 @@ namespace layer.ui {
 	export class TipUI extends layer.ui.Sprite {
 		private tipSprite: egret.Sprite;
 		private options: TipOptionsInterface;
-		private readonly titleHeight:number = 70;
+		private titleHeight:number = 70;
 		private readonly contentPadding:number = 15;
 		private readonly buttonMaxHeight:number = 75;
 		private interval:number;
@@ -125,6 +125,9 @@ namespace layer.ui {
 			this.tipSprite.removeChildren();
 			this.tipSprite.graphics.clear();
 
+			if (this.title.length <= 0)
+				this.titleHeight = 0;
+
 			const buttonHeight:number = this.buttons.length > 0 ? this.buttonMaxHeight : 0,
 				contentMaxHeight:number = this.clientHeight - this.titleHeight - buttonHeight;
 			let contentField: egret.TextField = new egret.TextField;
@@ -183,7 +186,7 @@ namespace layer.ui {
 			titleSprite.graphics.moveTo(0, titleSprite.height - 1);
 			titleSprite.graphics.lineTo(titleSprite.width, titleSprite.height - 1);
 			titleSprite.addChild(titleField);
-		
+
 			//按钮
 			let buttonsSprite = new egret.Sprite;
 			buttonsSprite.name = 'buttons';
@@ -222,7 +225,7 @@ namespace layer.ui {
 			tipSprite.addChild(contentSprite);
 			tipSprite.addChild(titleSprite);
 			tipSprite.addChild(buttonsSprite);
-			
+
 			tipSprite.x = (this.stage.stageWidth - tipSprite.width) / 2;
 			tipSprite.y = (this.stage.stageHeight - tipSprite.height) / 2;
 			this.addChild(tipSprite);
@@ -309,7 +312,7 @@ namespace layer.ui {
 
 			this.tipSprite.x = x;
 			this.tipSprite.y = y;
-			
+
 		}
 	}
 }
