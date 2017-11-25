@@ -1,25 +1,33 @@
 namespace layer.timer {
 	export class Countdown extends egret.EventDispatcher{
-		public duration: number = 0;
-		public remaining: number;
-		
+		private _duration: number = 0;
+		private _remaining: number;
+
 		private timer: egret.Timer;
 		private fromTime: number;
 		private paused: boolean;
 
 		private promise: DeferredPromise;
 		/**
-		 * 
+		 *
 		 * @param duration 需要倒計時的 毫秒數
 		 */
 		constructor(duration: number)
 		{
 			super();
-			this.duration = duration;
-			this.remaining = duration;
+			this._duration = duration;
+			this._remaining = duration;
 			this.fromTime = null;
 			this.paused = false;
 			this.promise = null;
+		}
+
+		public get duration(): number {
+			return this._duration;
+		}
+
+		public get remaining(): number {
+			return this._remaining;
 		}
 
 		private resolvePromise(): void {
@@ -69,12 +77,12 @@ namespace layer.timer {
 		{
 			if (this.paused) return;
 
-			this.remaining = this.duration - Date.now() + this.fromTime;
+			this._remaining = this._duration - Date.now() + this.fromTime;
 			if (this.remaining <= 0)
 			{
 				CountdownEvent.dispatchCountdownEvent(this, CountdownEvent.COMPLETE);
 				this.clearTimer();
-				this.remaining = 0;
+				this._remaining = 0;
 			} else
 				CountdownEvent.dispatchCountdownEvent(this, CountdownEvent.COUNTDOWN);
 
@@ -84,11 +92,11 @@ namespace layer.timer {
 		 * 開始倒計時
 		 * @param delay 多少毫秒回執一次
 		 */
-		public start(delay: number = 500): void 
+		public start(delay: number = 500): void
 		{
 			this.clearTimer();
 			this.fromTime = Date.now();
-			this.remaining = this.duration;
+			this._remaining = this._duration;
 			this.paused = false;
 			this.timer = new egret.Timer(delay, 0); //重复
 			this.timer.addEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
@@ -97,13 +105,13 @@ namespace layer.timer {
 		public reset() : void
 		{
 			this.clearTimer();
-			this.remaining = this.duration;
+			this._remaining = this._duration;
 			CountdownEvent.dispatchCountdownEvent(this, CountdownEvent.RESET);
 		}
 		/**
 		 * 暫停倒計時
 		 */
-		public pause(): void 
+		public pause(): void
 		{
 			this.paused = true;
 			if (this.timer) this.timer.reset();
@@ -115,7 +123,7 @@ namespace layer.timer {
 		public resume(): void
 		{
 			this.paused = false;
-			this.fromTime = Date.now() - this.duration + this.remaining;
+			this.fromTime = Date.now() - this._duration + this.remaining;
 			if (this.timer) this.timer.start();
 			CountdownEvent.dispatchCountdownEvent(this, CountdownEvent.RESUME);
 		}
@@ -127,7 +135,7 @@ namespace layer.timer {
 			this.clearTimer();
 			this.rejectPromise();
 			this.paused = false;
-			this.remaining = 0;
+			this._remaining = 0;
 			CountdownEvent.dispatchCountdownEvent(this, CountdownEvent.STOP);
 		}
 	}

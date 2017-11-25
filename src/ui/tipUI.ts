@@ -101,11 +101,7 @@ namespace layer.ui {
 			this.removeChildren();
 			this.graphics.clear();
 			//黑色遮罩
-			let maskSprite:egret.Sprite = new egret.Sprite;
-			maskSprite.graphics.beginFill(0x0, 0.25);
-			maskSprite.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageHeight);
-			maskSprite.graphics.endFill();
-			this.addChild(maskSprite);
+			this.addChild(new MaskUI(0x0, .25));
 			//主容器
 			this.tipSprite = new egret.Sprite;
 			this.addChild(this.tipSprite);
@@ -128,13 +124,15 @@ namespace layer.ui {
 			if (this.title.length <= 0)
 				this.titleHeight = 0;
 
+			let parser: egret.HtmlTextParser = new egret.HtmlTextParser();
+
 			const buttonHeight:number = this.buttons.length > 0 ? this.buttonMaxHeight : 0,
 				contentMaxHeight:number = this.clientHeight - this.titleHeight - buttonHeight;
 			let contentField: egret.TextField = new egret.TextField;
 			contentField.textColor = this.textColor;
 			contentField.fontFamily = this.fontFamily;
 			contentField.size = 20;
-			contentField.text = this.content;
+			contentField.textFlow = parser.parse(this.content);
 			contentField.textAlign = egret.HorizontalAlign.LEFT;
 			contentField.verticalAlign = egret.VerticalAlign.TOP;
 			contentField.width = this.clientWidth - this.contentPadding * 2; //自动计算高度
@@ -167,7 +165,7 @@ namespace layer.ui {
 			titleField.textColor = this.textColor;
 			titleField.fontFamily = this.fontFamily;
 			titleField.size = 35;
-			titleField.text = this.title;
+			titleField.textFlow = parser.parse(this.title);
 			titleField.textAlign = egret.HorizontalAlign.CENTER;
 			titleField.verticalAlign = egret.VerticalAlign.MIDDLE;
 			titleField.x = this.contentPadding;
@@ -216,7 +214,7 @@ namespace layer.ui {
 					btn.textColor = this.buttons[i].textColor || this.textColor;
 					btn.textAlign = egret.HorizontalAlign.CENTER;
 					btn.verticalAlign = egret.VerticalAlign.MIDDLE;
-					btn.text = this.buttons[i].text;
+					btn.textFlow = parser.parse(this.buttons[i].text);
 
 					buttonsSprite.addChild(btn);
 				}

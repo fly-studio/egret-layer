@@ -10,12 +10,16 @@ namespace layer.http {
 			this.instance = axios.create({
 				baseURL: baseuri,
 				timeout: 20000,
-				/* headers: {
-					'X-CSRF-TOKEN': token
-				}, */
+				headers: {
+					'X-Requested-With': 'XMLHttpRequest'
+				},
 				responseType: 'json',
 				xsrfHeaderName: 'X-CSRF-TOKEN',
-				xsrfCookieName: 'XSRF-TOKEN' // read from cookie
+				xsrfCookieName: 'XSRF-TOKEN', // read from cookie
+				transformRequest: [function (data, headers) {
+					// Do whatever you want to transform the data
+					return data;
+				}],
 			});
 		}
 

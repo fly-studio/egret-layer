@@ -1,5 +1,6 @@
 namespace layer.ui {
 	export abstract class Sprite extends egret.Sprite {
+
 		constructor() {
 			super();
 

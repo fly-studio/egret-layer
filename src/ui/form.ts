@@ -10,8 +10,8 @@ namespace layer.ui {
 			this.fields = [];
 		}
 
-		public get data() : Object {
-			let d = {};
+		public get data(): FormData {
+			let d = new FormData();
 			this.fields.forEach(v => {
 				if (v instanceof egret.TextField)
 					d[v.name] = v.text;

@@ -8,13 +8,15 @@ namespace layer.timer {
 		static RESUME = "RESUME";
 
 		public duration: number = 0;
-		public remaining: number;
+		public remaining: number = 0;
 
 		public static dispatchCountdownEvent(target: egret.IEventDispatcher, type: string, bubbles?: boolean, cancelable?: boolean): boolean {
-			let event = egret.Event.create(CountdownEvent, type, bubbles, cancelable);
-			event.duration = (target as layer.timer.Countdown).duration;
-			event.remaining = (target as layer.timer.Countdown).remaining;
-			let result = target.dispatchEvent(event);
+			if (!(target instanceof layer.timer.Countdown))
+				throw new Error('target must be an instance of layer.timer.Countdown');
+			let event: CountdownEvent = egret.Event.create(CountdownEvent, type, bubbles, cancelable);
+			event.duration = target.duration;
+			event.remaining = target.remaining;
+			let result: boolean = target.dispatchEvent(event);
 			egret.Event.release(event);
 			return result;
 		}

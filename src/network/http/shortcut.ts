@@ -1,35 +1,48 @@
 namespace layer.http {
-	export function get(url: string, data?: Object) {
+	export function get(url: string, data?: Object): Promise<any> {
 		let q: Query = new Query();
-		q.request('get', url, data);
+		return q.request('get', url, data);
 	}
 
-	export function post(url: string, data: Object) {
+	export function post(url: string, data: Object): Promise<any> {
 		let q: Query = new Query();
-		q.request('post', url, data);
+		return q.request('post', url, data);
 	}
 
-	export function head(url: string, data: Object) {
+	export function form(url: string, data: Object): Promise<any> {
 		let q: Query = new Query();
-		q.request('head', url, data);
+		let formData: FormData;
+		if (data instanceof FormData)
+			formData = data;
+		else {
+			formData = new FormData();
+			for (let k in data)
+				formData.append(k, data[k]);
+		}
+		return q.request('post', url, formData);
 	}
 
-	export function options(url: string, data: Object) {
+	export function head(url: string, data: Object): Promise<any> {
 		let q: Query = new Query();
-		q.request('options', url, data);
+		return q.request('head', url, data);
 	}
 
-	export function patch(url: string, data: Object) {
+	export function options(url: string, data: Object): Promise<any> {
 		let q: Query = new Query();
-		q.request('patch', url, data);
+		return q.request('options', url, data);
 	}
 
-	export function put(url: string, data?: Object) {
+	export function patch(url: string, data: Object): Promise<any> {
 		let q: Query = new Query();
-		q.request('put', url, data);
+		return q.request('patch', url, data);
 	}
 
-	/* export function delete(url: string, data?: Object) {
+	export function put(url: string, data?: Object): Promise<any> {
+		let q: Query = new Query();
+		return q.request('put', url, data);
+	}
+
+	/* export function delete(url: string, data?: Object): Promise<any> {
 		let q: Query = new Query();
 		q.request('delete', url, data);
 	} */
