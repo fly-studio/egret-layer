@@ -12,6 +12,7 @@ namespace layer.ui {
 		private textField: egret.TextField;
 		private _configList: ResourceConfig[];
 		private _groupList: string[];
+		private _themeList: string[];
 		private status: Map<string, LoadStatus>;
 
 		public set configList(value: ResourceConfig[]) {
@@ -20,6 +21,14 @@ namespace layer.ui {
 
 		public get configList(): ResourceConfig[] {
 			return this._configList;
+		}
+
+		public set themeList(value: string[]) {
+			this._themeList = value;
+		}
+
+		public get themeList(): string[] {
+			return this._themeList;
 		}
 
 		public set groupList (value:string[]) {
@@ -34,8 +43,9 @@ namespace layer.ui {
 		{
 			super();
 
-			this.configList = [];
-			this.groupList = [];
+			this._configList = [];
+			this._groupList = [];
+			this._themeList = [];
 			this.status = new Map<string, LoadStatus>();
 			RES.setMaxLoadingThread(3);
 		};
@@ -46,20 +56,26 @@ namespace layer.ui {
 		 */
 		public async load()
 		{
-			if (this.configList.length + this.groupList.length <= 0) {
-				throw new Error('Please set configList/groupList first.'); // runtime error
+			if (this._configList.length + this._groupList.length + this._themeList.length <= 0) {
+				throw new Error('Please set configList/groupList/themeList first.'); // runtime error
 			}
 			//config
 			let promises: Promise<any>[] = [];
-			for (let config of this.configList) {
+			for (let config of this._configList) {
 				let dfd = this.loadConfig(config);
 				promises.push(dfd.promise());
 			}
 			await Promise.all(promises); //等待全部config读取完毕
-
+			//theme
+			promises = [];
+			for (let theme of this._themeList) {
+				let dfd = this.loadTheme(theme);
+				promises.push(dfd.promise());
+			}
+			await Promise.all(promises); //等待全部theme读取完毕
 			//group
 			promises = [];
-			for (let group of this.groupList)
+			for (let group of this._groupList)
 			{
 				let dfd = this.loadGroup(group);
 				promises.push(dfd.promise());
@@ -87,8 +103,9 @@ namespace layer.ui {
 		{
 			this.removeAllEventListeners();
 			this.status.clear();
-			this.configList = [];
-			this.groupList = [];
+			this._configList = [];
+			this._groupList = [];
+			this._themeList = [];
 		}
 
 		public removeAllEventListeners() : void
@@ -113,8 +130,8 @@ namespace layer.ui {
 
 		/**
 		 * [setProgress description]
-		 * @param {number} current [description]
-		 * @param {number} total   [description]
+		 * @param {number} current
+		 * @param {number} total
 		 */
 		public setProgress(current: number, total: number, resource?: RES.ResourceItem) : void {
 			if (!this.textField) return;
@@ -125,9 +142,9 @@ namespace layer.ui {
 
 		/**
 		 * 读取Config
-		 * @param {Array<string>} resourceFiles [description]
-		 * @param {Function}      onComplete    [description]
-		 * @param {any}           thisObject    [description]
+		 * @param {Array<string>} resourceFiles
+		 * @param {Function}      onComplete
+		 * @param {any}           thisObject
 		 */
 		private loadConfig(resourceConfig: ResourceConfig): DeferredPromise {
 			var dfd = new DeferredPromise();
@@ -143,10 +160,29 @@ namespace layer.ui {
 		}
 
 		/**
+		 * 读取 eui的皮肤文件
+		 * @param {string} themeName
+		 */
+		private loadTheme(themeName: string): DeferredPromise {
+			var dfd = new DeferredPromise();
+			// 必須先添加到Map 不然已緩存的項目中 成功事件會在loadGroup就觸發了
+			this.status.set('theme: ' + themeName, {
+				dfd,
+				loaded: 0,
+				total: 1,
+			});
+			let theme = new eui.Theme(themeName, this.getStage());
+			theme.once(eui.UIEvent.COMPLETE, () => {
+				dfd.resolve();
+			}, this);
+			return dfd;
+		}
+
+		/**
 		 * 读取Group文件
-		 * @param {string}   groupName  [description]
-		 * @param {Function} onComplete [description]
-		 * @param {any}      thisObject [description]
+		 * @param {string}   groupName
+		 * @param {Function} onComplete
+		 * @param {any}      thisObject
 		 */
 		private loadGroup(groupName: string) : DeferredPromise {
 			var dfd = new DeferredPromise();
