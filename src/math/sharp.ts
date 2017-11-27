@@ -1,49 +1,39 @@
 //http://www.jeffreythompson.org/collision-detection/
+/*
+∠ABC是三个角, abc分别是这三个角的对边
+	C ___a__ B
+	 |     /
+	 |    /
+	 b   c
+	 |  /
+	 | /
+	 |/
+	 A
 
+直角三角形
+勾股  a² + b² = c²
+正弦  sin(A) = 对边 / 斜边 = a / c
+余弦  cos(A) = 临边 / 斜边 = b / c
+正切  tan(A) = 对边 / 临边 = a / b
+余切  cot(A) = 临边 / 对边 = b / a
+
+其它三角形
+sin(A) / a = sin(B) / b = sin(C) / c = 2R（R是三角形外接圆半径）
+cos(A) = (b² + c² - a²) / 2bc
+cos(B) = (a² + c² - b²) / 2ac
+cos(C) = (a² + b² - c²) / 2ab
+*/
 namespace layer.sharp {
 	export enum DIRECTION {
-		N = 0, //Noth
-		NE = 1, //NothEast
-		E = 2, //East
-		SE = 3, //SouthEast
-		S = 4, //South
-		SW = 5, //SouthWest
-		W = 6, //West
-		NW = 7, //NothWest
-		North = 0,
-		Northeast = 1,
-		East = 2,
-		Southeast = 3,
-		South = 4,
-		Southwest = 5,
-		West = 6,
-		Nothwest = 7,
-		NORTH = 0,
-		NORTHEAST = 1,
-		EAST = 2,
-		SOUTHEAST = 3,
-		SOUTH = 4,
-		SOUTHWEST = 5,
-		WEST = 6,
-		NOTHWEST = 7
+		N = 0, NE = 1, E = 2, SE = 3, S = 4, SW = 5, W = 6, NW = 7,
+		North = 0, Northeast = 1, East = 2, Southeast = 3, South = 4, Southwest = 5, West = 6, Nothwest = 7,
+		NORTH = 0, NORTHEAST = 1, EAST = 2, SOUTHEAST = 3, SOUTH = 4, SOUTHWEST = 5, WEST = 6, NOTHWEST = 7
 	};
 	export enum POSITION {
-		TOP = 0,
-		RIGHT = 1,
-		BOTTOM = 2,
-		LEFT = 3,
-		Top = 0,
-		Right = 1,
-		Bottom = 2,
-		Left = 3,
-		UP = 0,
-		FORWARD = 1,
-		DOWN = 2,
-		BACKWARD = 3,
-		Up = 0,
-		Forward = 1,
-		Down = 2,
-		Backward = 3
+		TOP = 0, RIGHT = 1, BOTTOM = 2, LEFT = 3,
+		Top = 0, Right = 1, Bottom = 2, Left = 3,
+		UP = 0, FORWARD = 1, DOWN = 2, BACKWARD = 3,
+		Up = 0, Forward = 1, Down = 2, Backward = 3
 	};
 
 	/**
@@ -51,15 +41,21 @@ namespace layer.sharp {
 	 * http://keisan.casio.com/exec/system/1223508685
 	 * @param  {egret.Point} p1 点1
 	 * @param  {egret.Point} p2 点2
-	 * @return {number}         斜率
+	 * @return {number}         斜率（弧度）
 	 */
 	export function slope(p1: egret.Point, p2: egret.Point): number {
 		return Math.atan2(p2.y - p1.y, p2.x - p1.x);
 	};
-
+	/**
+	 * 计算两点之间的角度
+	 * 同上，只是将弧度转换到了0~360°
+	 * @param  {egret.Point} p1 点1
+	 * @param  {egret.Point} p2 点2
+	 * @return {number}         斜率（角度）
+	 */
 	export function slopeDegree(p1: egret.Point, p2: egret.Point): number {
-		let angel: number = slope(p1, p2);
-		return (angel > 0 ? angel : (2 * Math.PI + angel)) * 360 / (2 * Math.PI);
+		let angle: number = slope(p1, p2);
+		return (angle > 0 ? angle : (2 * Math.PI + angle)) * 360 / (2 * Math.PI);
 	};
 	/**
 	 * 计算计算p2相对p1的方向，东、南、西、北
@@ -68,7 +64,7 @@ namespace layer.sharp {
 	 * @param p2 点2
 	 * @param directionsCount 4方向 或 8方向
 	 */
-	export function direction(p1: egret.Point, p2: egret.Point, directionsCount: number = 4) : DIRECTION {
+	export function direction(p1: egret.Point, p2: egret.Point, directionsCount: number = 4): DIRECTION {
 		if (directionsCount != 4 && directionsCount != 8)
 			throw new Error('directCount must be 4 / 8');
 
@@ -89,7 +85,7 @@ namespace layer.sharp {
 	 * @param p1 点1
 	 * @param p2 点2
 	 */
-	export function position(p1: egret.Point, p2: egret.Point) : POSITION {
+	export function position(p1: egret.Point, p2: egret.Point): POSITION {
 		let d: number = direction(p1, p2, 4);
 		return d / 2;
 	};
@@ -145,10 +141,10 @@ namespace layer.sharp {
 	 * 计算圆上面的某点
 	 * @param {egret.Point} circlePos 圆心
 	 * @param {number} radius 半径
-	 * @param {number} angel 弧度，从数学 正x坐标开始 顺时针的弧度
+	 * @param {number} angle 弧度，从数学 正x坐标开始 顺时针的弧度
 	 */
-	export function circlePoint(circlePos: egret.Point, radius: number, angel: number) {
-		return new egret.Point(circlePos.x + Math.cos(angel) * radius, circlePos.y + Math.sin(angel) * radius);
+	export function circlePoint(circlePos: egret.Point, radius: number, angle: number): egret.Point {
+		return new egret.Point(circlePos.x + Math.cos(angle) * radius, circlePos.y + Math.sin(angle) * radius);
 	};
 	/**
 	 * 计算「点」与「点」是否相同
@@ -156,7 +152,7 @@ namespace layer.sharp {
 	 * @param  {egret.Point} p2 [description]
 	 * @return {boolean}
 	 */
-	export function pointHitPoint(p1: egret.Point, p2: egret.Point):boolean {
+	export function pointHitPoint(p1: egret.Point, p2: egret.Point): boolean {
 		return p1.equals(p2);
 	};
 	/**
@@ -167,7 +163,7 @@ namespace layer.sharp {
 	 * @param  {number}      radius    半径
 	 * @return {boolean}
 	 */
-	export function pointHitCircle(p: egret.Point, circlePos: egret.Point, radius: number) {
+	export function pointHitCircle(p: egret.Point, circlePos: egret.Point, radius: number): boolean {
 		let distX: number = p.x - circlePos.x;
 		let distY: number = p.y - circlePos.y;
 		let distance: number = Math.sqrt( (distX * distX) + (distY * distY) );
@@ -184,7 +180,7 @@ namespace layer.sharp {
 	 * @param  {egret.Point} p         待测试的点
 	 * @return {boolean}
 	 */
-	export function circleHitPoint(circlePos: egret.Point, radius: number, p: egret.Point):boolean {
+	export function circleHitPoint(circlePos: egret.Point, radius: number, p: egret.Point): boolean {
 		return pointHitCircle(p, circlePos, radius);
 	};
 	/**
@@ -194,7 +190,7 @@ namespace layer.sharp {
 	 * @param  {egret.Rectangle} rect 待测试的矩形
 	 * @return {boolean}
 	 */
-	export function pointHitRect(p: egret.Point, rect: egret.Rectangle):boolean {
+	export function pointHitRect(p: egret.Point, rect: egret.Rectangle): boolean {
 		return p.x >= rect.left && // right of the left edge AND
 			p.x <= rect.right &&   // left of the right edge AND
 			p.y >= rect.top &&     // below the top AND
@@ -207,7 +203,7 @@ namespace layer.sharp {
 	 * @param  {egret.Point}     p    待测试的点
 	 * @return {boolean}
 	 */
-	export function rectHitPoint(rect: egret.Rectangle, p: egret.Point):boolean {
+	export function rectHitPoint(rect: egret.Rectangle, p: egret.Point): boolean {
 		return pointHitRect(p, rect);
 	};
 	/**
@@ -217,7 +213,7 @@ namespace layer.sharp {
 	 * @param  {egret.Rectangle} rect2 待测试的矩形2
 	 * @return {boolean}
 	 */
-	export function rectHitRect(rect1: egret.Rectangle, rect2: egret.Rectangle):boolean {
+	export function rectHitRect(rect1: egret.Rectangle, rect2: egret.Rectangle): boolean {
 		return rect1.right >= rect2.left && // r1 right edge past r2 left
 			rect1.left <= rect2.right &&    // r1 left edge past r2 right
 			rect1.bottom >= rect2.top &&    // r1 bottom edge past r2 top
@@ -232,7 +228,7 @@ namespace layer.sharp {
 	 * @param  {number}      radius2    圆2半径
 	 * @return {boolean}
 	 */
-	export function circleHitCircle(circlePos1: egret.Point, radius1: number, circlePos2: egret.Point, radius2: number):boolean {
+	export function circleHitCircle(circlePos1: egret.Point, radius1: number, circlePos2: egret.Point, radius2: number): boolean {
 		let distX: number = circlePos1.x - circlePos2.x;
 		let distY: number = circlePos1.y - circlePos2.y;
 		let distance: number = Math.sqrt( (distX * distX) + (distY * distY) );
@@ -249,7 +245,7 @@ namespace layer.sharp {
 	 * @param  {egret.Rectangle} rect      矩形
 	 * @return {boolean}
 	 */
-	export function circleHitRect(circlePos: egret.Point, radius: number, rect: egret.Rectangle):boolean {
+	export function circleHitRect(circlePos: egret.Point, radius: number, rect: egret.Rectangle): boolean {
 		// temporary letiables to set edges for testing
 		let testX: number = circlePos.x;
 		let testY: number = circlePos.y;
@@ -276,7 +272,7 @@ namespace layer.sharp {
 	 * @param  {number}          radius    半径
 	 * @return {boolean}
 	 */
-	export function rectHitCircle(rect: egret.Rectangle, circlePos: egret.Point, radius: number):boolean {
+	export function rectHitCircle(rect: egret.Rectangle, circlePos: egret.Point, radius: number): boolean {
 		return circleHitRect(circlePos, radius, rect);
 	};
 	/**
@@ -287,7 +283,7 @@ namespace layer.sharp {
 	 * @param  {egret.Point} linePos2 线结束点
 	 * @return {boolean}
 	 */
-	export function pointHitLine(p: egret.Point, linePos1: egret.Point, linePos2: egret.Point):boolean {
+	export function pointHitLine(p: egret.Point, linePos1: egret.Point, linePos2: egret.Point): boolean {
 		// get distance from the point to the two ends of the line
 		let d1: number = distance(p, linePos1);
 		let d2: number = distance(p, linePos2);
@@ -313,7 +309,7 @@ namespace layer.sharp {
 	 * @param  {egret.Point} p        待测试点
 	 * @return {boolean}
 	 */
-	export function lineHitPoint(linePos1: egret.Point, linePos2: egret.Point, p: egret.Point):boolean {
+	export function lineHitPoint(linePos1: egret.Point, linePos2: egret.Point, p: egret.Point): boolean {
 		return pointHitLine(p, linePos1, linePos2);
 	};
 	/**
@@ -337,7 +333,7 @@ namespace layer.sharp {
 
 		// is this point actually on the line segment?
 		// if so keep going, but if not, return false
-		let onSegment:boolean = lineHitPoint(linePos1, linePos2, new egret.Point(closestX, closestY));
+		let onSegment: boolean = lineHitPoint(linePos1, linePos2, new egret.Point(closestX, closestY));
 
 		return onSegment ? new egret.Point(closestX, closestY) : false;
 	};
@@ -350,14 +346,14 @@ namespace layer.sharp {
 	 * @param  {number}      radius    半径
 	 * @return {boolean}
 	 */
-	export function lineHitCircle(linePos1: egret.Point, linePos2: egret.Point, circlePos: egret.Point, radius: number):boolean {
+	export function lineHitCircle(linePos1: egret.Point, linePos2: egret.Point, circlePos: egret.Point, radius: number): boolean {
 		// is either end INSIDE the circle?
 		// if so, return true immediately
-		let inside1:boolean = pointHitCircle(linePos1, circlePos, radius);
-		let inside2:boolean = pointHitCircle(linePos2, circlePos, radius);
+		let inside1: boolean = pointHitCircle(linePos1, circlePos, radius);
+		let inside2: boolean = pointHitCircle(linePos2, circlePos, radius);
 		if (inside1 || inside2) return true;
 
-		let closest:any = pointLineClosest(circlePos, linePos1, linePos2);
+		let closest: any = pointLineClosest(circlePos, linePos1, linePos2);
 		if (closest === false) return false;
 
 		// get distance to closest point
@@ -376,7 +372,7 @@ namespace layer.sharp {
 	 * @param  {egret.Point} linePos2  线结束点
 	 * @return {boolean}               [description]
 	 */
-	export function circleHitLine(circlePos: egret.Point, radius: number, linePos1: egret.Point, linePos2: egret.Point):boolean {
+	export function circleHitLine(circlePos: egret.Point, radius: number, linePos1: egret.Point, linePos2: egret.Point): boolean {
 		return lineHitCircle(linePos1, linePos2, circlePos, radius);
 	};
 	/**
@@ -389,8 +385,8 @@ namespace layer.sharp {
 	 */
 	export function lineLineIntersect(line1Pos1: egret.Point, line1Pos2: egret.Point, line2Pos1: egret.Point, line2Pos2: egret.Point): egret.Point|boolean {
 		let p1: egret.Point = line1Pos1, p2: egret.Point = line1Pos2, p3: egret.Point = line2Pos1, p4: egret.Point = line2Pos2;
-		let uA: number = ((p4.x - p3.x)*(p1.y - p3.y) - (p4.y - p3.y)*(p1.x - p3.x)) / ((p4.y - p3.y)*(p2.x - p1.x) - (p4.x - p3.x)*(p2.y - p1.y));
-		let uB: number = ((p2.x - p1.x)*(p1.y - p3.y) - (p2.y - p1.y)*(p1.x - p3.x)) / ((p4.y - p3.y)*(p2.x - p1.x) - (p4.x - p3.x)*(p2.y - p1.y));
+		let uA: number = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x)) / ((p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y));
+		let uB: number = ((p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x)) / ((p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y));
 
 		// collision?
 		if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
@@ -409,8 +405,8 @@ namespace layer.sharp {
 	 * @param  {egret.Point} line2Pos2 线2结束点
 	 * @return {boolean}
 	 */
-	export function lineHitLine(line1Pos1: egret.Point, line1Pos2: egret.Point, line2Pos1: egret.Point, line2Pos2: egret.Point):boolean {
-		let r:any = lineLineIntersect(line1Pos1, line1Pos2, line2Pos1, line2Pos2);
+	export function lineHitLine(line1Pos1: egret.Point, line1Pos2: egret.Point, line2Pos1: egret.Point, line2Pos2: egret.Point): boolean {
+		let r: any = lineLineIntersect(line1Pos1, line1Pos2, line2Pos1, line2Pos2);
 		return r !== false;
 	};
 	/**
@@ -421,12 +417,12 @@ namespace layer.sharp {
 	 * @param  {egret.Rectangle} rect     矩形
 	 * @return {boolean}                  [description]
 	 */
-	export function lineHitRect(linePos1: egret.Point, linePos2: egret.Point, rect: egret.Rectangle):boolean {
+	export function lineHitRect(linePos1: egret.Point, linePos2: egret.Point, rect: egret.Rectangle): boolean {
 		let p1: egret.Point = linePos1, p2: egret.Point = linePos2;
-		let left:boolean = lineHitLine(p1, p2, new egret.Point(rect.left, rect.top), new egret.Point(rect.left, rect.bottom));
-		let right:boolean = lineHitLine(p1, p2, new egret.Point(rect.right, rect.top), new egret.Point(rect.right, rect.bottom));
-		let top:boolean = lineHitLine(p1, p2, new egret.Point(rect.left, rect.top), new egret.Point(rect.right , rect.top));
-		let bottom:boolean = lineHitLine(p1, p2, new egret.Point(rect.left, rect.bottom), new egret.Point(rect.right, rect.bottom));
+		let left: boolean = lineHitLine(p1, p2, new egret.Point(rect.left, rect.top), new egret.Point(rect.left, rect.bottom));
+		let right: boolean = lineHitLine(p1, p2, new egret.Point(rect.right, rect.top), new egret.Point(rect.right, rect.bottom));
+		let top: boolean = lineHitLine(p1, p2, new egret.Point(rect.left, rect.top), new egret.Point(rect.right , rect.top));
+		let bottom: boolean = lineHitLine(p1, p2, new egret.Point(rect.left, rect.bottom), new egret.Point(rect.right, rect.bottom));
 
 		// collision?
 		return left || right || top || bottom;
@@ -439,7 +435,7 @@ namespace layer.sharp {
 	 * @param  {egret.Point}     linePos2 线结束点
 	 * @return {boolean}                  [description]
 	 */
-	export function rectHitLine(rect: egret.Rectangle, linePos1: egret.Point, linePos2: egret.Point):boolean {
+	export function rectHitLine(rect: egret.Rectangle, linePos1: egret.Point, linePos2: egret.Point): boolean {
 		return lineHitRect(linePos1, linePos2, rect);
 	};
 	/**
@@ -449,8 +445,8 @@ namespace layer.sharp {
 	 * @param  {Array<egret.Point>} vertices 多边形各个顶点的数组
 	 * @return {boolean}
 	 */
-	export function pointHitPolygon(p: egret.Point, vertices:Array<egret.Point>):boolean {
-		let collision:boolean = false;
+	export function pointHitPolygon(p: egret.Point, vertices:Array<egret.Point>): boolean {
+		let collision: boolean = false;
 
 		// go through each of the vertices, plus
 		// the next vertex in the list
@@ -483,7 +479,7 @@ namespace layer.sharp {
 	 * @param  {egret.Point}        p        待测试点
 	 * @return {boolean}
 	 */
-	export function polygonHitPoint(vertices:Array<egret.Point>, p: egret.Point):boolean {
+	export function polygonHitPoint(vertices:Array<egret.Point>, p: egret.Point): boolean {
 		return pointHitPolygon(p, vertices);
 	};
 	/**
@@ -494,7 +490,7 @@ namespace layer.sharp {
 	 * @param  {Array<egret.Point>} vertices  多边形各个顶点的数组
 	 * @return {boolean}
 	 */
-	export function circleHitPolygon(circlePos: egret.Point, radius: number, vertices:Array<egret.Point>):boolean {
+	export function circleHitPolygon(circlePos: egret.Point, radius: number, vertices:Array<egret.Point>): boolean {
 		// go through each of the vertices, plus
 		// the next vertex in the list
 		let next: number = 0;
@@ -512,7 +508,7 @@ namespace layer.sharp {
 
 			// check for collision between the circle and
 			// a line formed between the two vertices
-			let collision:boolean = lineHitCircle(vc, vn, circlePos, radius);
+			let collision: boolean = lineHitCircle(vc, vn, circlePos, radius);
 			if (collision) return true;
 		}
 
@@ -536,7 +532,7 @@ namespace layer.sharp {
 	 * @param  {number}             radius    半径
 	 * @return {boolean}
 	 */
-	export function polygonHitCircle(vertices:Array<egret.Point>, circlePos: egret.Point, radius: number):boolean {
+	export function polygonHitCircle(vertices:Array<egret.Point>, circlePos: egret.Point, radius: number): boolean {
 		return circleHitPolygon(circlePos, radius, vertices);
 	};
 	/**
@@ -546,7 +542,7 @@ namespace layer.sharp {
 	 * @param  {Array<egret.Point>} vertices 多边形各个顶点的数组
 	 * @return {boolean}
 	 */
-	export function rectHitPolygon(rect: egret.Rectangle, vertices:Array<egret.Point>):boolean {
+	export function rectHitPolygon(rect: egret.Rectangle, vertices:Array<egret.Point>): boolean {
 		// go through each of the vertices, plus the next
 		// vertex in the list
 		let next: number = 0;
@@ -563,13 +559,13 @@ namespace layer.sharp {
 			let vn: egret.Point = vertices[next];       // n for "next"
 
 			// check against all four sides of the rectangle
-			let collision:boolean = lineHitRect(vc, vn, rect);
+			let collision: boolean = lineHitRect(vc, vn, rect);
 			if (collision) return true;
 
 			// optional: test if the rectangle is INSIDE the polygon
 			// note that this iterates all sides of the polygon
 			// again, so only use this if you need to
-			let inside:boolean = polygonHitPoint(vertices, rect.topLeft);
+			let inside: boolean = polygonHitPoint(vertices, rect.topLeft);
 			if (inside) return true;
 		}
 		return false;
@@ -581,7 +577,7 @@ namespace layer.sharp {
 	 * @param  {egret.Rectangle}    rect     矩形
 	 * @return {boolean}
 	 */
-	export function polygonHitRect(vertices:Array<egret.Point>, rect: egret.Rectangle):boolean {
+	export function polygonHitRect(vertices:Array<egret.Point>, rect: egret.Rectangle): boolean {
 		return rectHitPolygon(rect, vertices);
 	};
 	/**
@@ -592,7 +588,7 @@ namespace layer.sharp {
 	 * @param  {Array<egret.Point>} vertices 多边形各个顶点的数组
 	 * @return {boolean}
 	 */
-	export function lineHitPolygon(linePos1: egret.Point, linePos2: egret.Point, vertices:Array<egret.Point>):boolean {
+	export function lineHitPolygon(linePos1: egret.Point, linePos2: egret.Point, vertices:Array<egret.Point>): boolean {
 		// go through each of the vertices, plus the next
 		// vertex in the list
 		let next: number = 0;
@@ -611,7 +607,7 @@ namespace layer.sharp {
 			// do a Line/Line comparison
 			// if true, return 'true' immediately and
 			// stop testing (faster)
-			let hit:boolean = lineHitLine(linePos1, linePos2, vc, vn);
+			let hit: boolean = lineHitLine(linePos1, linePos2, vc, vn);
 			if (hit) return true;
 		}
 
@@ -625,7 +621,7 @@ namespace layer.sharp {
 	 * @param  {egret.Point}        linePos2 线结束点
 	 * @return {boolean}
 	 */
-	export function polygonHitLine(vertices:Array<egret.Point>, linePos1: egret.Point, linePos2: egret.Point):boolean {
+	export function polygonHitLine(vertices:Array<egret.Point>, linePos1: egret.Point, linePos2: egret.Point): boolean {
 		return lineHitPolygon(linePos1, linePos2, vertices);
 	};
 	/**
@@ -635,7 +631,7 @@ namespace layer.sharp {
 	 * @param  {Array<egret.Point>} vertices2 多边形2各个顶点的数组
 	 * @return {boolean}
 	 */
-	export function polygonHitPolygon(vertices1:Array<egret.Point>, vertices2:Array<egret.Point>):boolean {
+	export function polygonHitPolygon(vertices1:Array<egret.Point>, vertices2:Array<egret.Point>): boolean {
 		// go through each of the vertices, plus the next
 		// vertex in the list
 		let next: number = 0;
@@ -653,7 +649,7 @@ namespace layer.sharp {
 
 			// now we can use these two points (a line) to compare
 			// to the other polygon's vertices using polyLine()
-			let collision:boolean = polygonHitLine(vertices2, vc, vn);
+			let collision: boolean = polygonHitLine(vertices2, vc, vn);
 			if (collision) return true;
 
 			// optional: check if the 2nd polygon is INSIDE the first
@@ -670,7 +666,7 @@ namespace layer.sharp {
 	 * @param  {Array<egret.Point>} vertices 三角形各个顶点的数组
 	 * @return {boolean}
 	 */
-	export function pointHitTriangle(p: egret.Point, vertices:Array<egret.Point>):boolean {
+	export function pointHitTriangle(p: egret.Point, vertices:Array<egret.Point>): boolean {
 		let x1: number = vertices[1].x, x2: number = vertices[2].x, x3: number = vertices[3].x;
 		let y1: number = vertices[1].y, y2: number = vertices[2].y, y3: number = vertices[3].y;
 		// get the area of the triangle
@@ -693,7 +689,7 @@ namespace layer.sharp {
 	 * @param  {egret.Point}        p        待测试点
 	 * @return {boolean}
 	 */
-	export function triangleHitPoint(vertices:Array<egret.Point>, p: egret.Point):boolean {
+	export function triangleHitPoint(vertices:Array<egret.Point>, p: egret.Point): boolean {
 		return pointHitTriangle(p, vertices);
 	};
 }
