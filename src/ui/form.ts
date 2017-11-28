@@ -26,10 +26,7 @@ namespace layer.ui {
 
 		public submit()
 		{
-			let q: layer.http.Query = new layer.http.Query;
-			q.autoTip = this.autoTip;
-
-			return q.request(this.method, this.action, this.data);
+			return layer.http.request(this.method, this.action, this.data, this.autoTip);
 		}
 	}
 }

@@ -14,7 +14,7 @@
 	},
 	"files": [
 		"../features/bin/features.d.ts",
-		"../axios/bin/index.d.ts"
+		"../_/bin/_.d.ts"
 	],
 	"include": [
 		"src"
