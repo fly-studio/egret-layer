@@ -53,14 +53,15 @@ namespace layer.ui.ready {
 				}
 				let tween: egret.Tween = egret.Tween.get(this.circleSprite).call(() => {
 					layer.media.Sound.play(this.readyRes[0].soundRes);
-				}, this).wait(this.readyRes[0].duration);
+				}, this).wait(this.readyRes[0].duration / 2);
 				let avg: number = 360 / this.readyRes.length;
 				for (let i: number = 1; i < this.readyRes.length; i++) {
 					let res = this.readyRes[i];
-					tween = tween.call(() => {
+					tween = tween
+						.to({ rotation: avg * i }, res.duration / 2)
+						.call(() => {
 							layer.media.Sound.play(res.soundRes);
 						}, this)
-						.to({ rotation: avg * i }, res.duration / 2)
 						.wait(res.duration / 2);
 				}
 				tween.call(() => {
