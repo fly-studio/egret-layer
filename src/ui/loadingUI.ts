@@ -9,11 +9,13 @@ namespace layer.ui {
 		total: number;
 	}
 	export class LoadingUI extends layer.ui.Sprite {
+
 		private textField: egret.TextField;
 		private _configList: ResourceConfig[];
 		private _groupList: string[];
 		private _themeList: string[];
 		private status: Map<string, LoadStatus>;
+		private resURI: string;
 
 		public set configList(value: ResourceConfig[]) {
 			this._configList = value;
@@ -39,10 +41,12 @@ namespace layer.ui {
 			return this._groupList;
 		}
 
-		constructor()
+		constructor(resURI: string = '')
 		{
 			super();
 
+			this.resURI = resURI.length > 0 ? resURI : (window['resURI'] != undefined ? window['resURI'] : '') ;
+			if (this.resURI.length > 0 && this.resURI.substring(this.resURI.length - 1) != '/') this.resURI += '/';
 			this._configList = [];
 			this._groupList = [];
 			this._themeList = [];
@@ -150,12 +154,16 @@ namespace layer.ui {
 			var dfd = new DeferredPromise();
 			let { resourceFile, path } = resourceConfig;
 			// 必須先添加到Map 不然已緩存的項目的成功事件會在loadConfig就觸發了
+
+			if (path == undefined) path = resourceFile.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '') + '/';
+			resourceFile = this.resURI + resourceFile;
+			path = this.resURI + path;
 			this.status.set('config: ' + resourceFile, {
 				dfd,
 				loaded: 0,
 				total: 1
 			});
-			RES.loadConfig(resourceFile, path || resourceFile.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '') + '/');
+			RES.loadConfig(resourceFile, path);
 			return dfd;
 		}
 
@@ -165,6 +173,7 @@ namespace layer.ui {
 		 */
 		private loadTheme(themeName: string): DeferredPromise {
 			var dfd = new DeferredPromise();
+			themeName = this.resURI + themeName;
 			// 必須先添加到Map 不然已緩存的項目中 成功事件會在loadGroup就觸發了
 			this.status.set('theme: ' + themeName, {
 				dfd,

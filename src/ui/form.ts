@@ -14,7 +14,7 @@ namespace layer.ui {
 			let d = new FormData();
 			this.fields.forEach(v => {
 				if (v instanceof egret.TextField)
-					d[v.name] = v.text;
+					d.append(v.name, v.text);
 				// else if ()
 			});
 			return d;

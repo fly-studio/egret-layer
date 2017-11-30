@@ -131,7 +131,7 @@ namespace layer.ui {
 			let contentField: egret.TextField = new egret.TextField;
 			contentField.textColor = this.textColor;
 			contentField.fontFamily = this.fontFamily;
-			contentField.size = 20;
+			contentField.size = 24;
 			contentField.textFlow = parser.parse(this.content);
 			contentField.textAlign = egret.HorizontalAlign.LEFT;
 			contentField.verticalAlign = egret.VerticalAlign.TOP;

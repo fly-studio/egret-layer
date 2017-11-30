@@ -18,10 +18,6 @@ namespace layer.ui.lp {
 				}, tipType.timeout);
 				break;
 			case 'refresh':
-				setTimeout(function () {
-					self.location.reload();
-				}, tipType.timeout);
-				break;
 			case 'back':
 			case 'toast':
 				break;
