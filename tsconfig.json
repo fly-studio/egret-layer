@@ -13,7 +13,6 @@
 		]
 	},
 	"files": [
-		"../features/bin/features.d.ts",
 		"../_/bin/_.d.ts"
 	],
 	"include": [
