@@ -84,7 +84,7 @@ namespace layer.ui {
 				let dfd = this.loadGroup(group);
 				promises.push(dfd.promise());
 			}
-			return await Promise.all(promises); // 同时请求这几个Group
+			return await Promise.all(promises).then(() => this.destroy()); // 同时请求这几个Group
 		}
 
 		public onAddedToStage(e: egret.Event) : void
@@ -142,7 +142,16 @@ namespace layer.ui {
 			let percent: number = total > 0 ? current / total * 100 : 0;
 			if (percent > 100) percent = 100;
 			this.textField.text = "Loading..." + Math.round(percent) + '%';
-		};
+		}
+
+		protected calcTotalProgress(resource?: RES.ResourceItem) {
+			let total: number = 0, loaded: number = 0;
+			this.status.forEach(status => {
+				total += status.total;
+				loaded += status.loaded;
+			});
+			this.setProgress(loaded, total, resource);
+		}
 
 		/**
 		 * 读取Config
@@ -182,6 +191,9 @@ namespace layer.ui {
 			});
 			let theme = new eui.Theme(themeName, this.getStage());
 			theme.once(eui.UIEvent.COMPLETE, () => {
+				let status = this.status.get('theme: ' + themeName);
+				if (status) status.loaded = 1;
+				this.calcTotalProgress();
 				dfd.resolve();
 			}, this);
 			return dfd;
@@ -246,7 +258,7 @@ namespace layer.ui {
 			//忽略加载失败的项目
 			//Ignore the loading failed projects
 			RES.ResourceEvent.dispatchResourceEvent(event.target, RES.ResourceEvent.GROUP_COMPLETE, event.groupName);
-		};
+		}
 
 		private onResourceProgress(event: RES.ResourceEvent) : void {
 			let name:string = event.groupName;
@@ -269,12 +281,7 @@ namespace layer.ui {
 				}
 			}
 
-			let total: number = 0, loaded: number = 0;
-			this.status.forEach(status => {
-				total += status.total;
-				loaded += status.loaded;
-			});
-			this.setProgress(loaded, total, event.resItem);
+			this.calcTotalProgress(event.resItem);
 
 		};
 
