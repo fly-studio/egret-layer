@@ -19,6 +19,7 @@ namespace layer.ui {
 	}
 
 	export class TipUI extends layer.ui.Sprite {
+
 		private tipSprite: egret.Sprite;
 		private options: TipOptionsInterface;
 		private titleHeight:number = 70;
@@ -109,10 +110,6 @@ namespace layer.ui {
 			this.renderClient();
 			this.bindEvents();
 			this.timeoutDisappear();
-		}
-
-		public onRemovedFromStage(e: egret.Event) : void {
-			this.removeAllEventListeners();
 		}
 
 		private renderClient() : void

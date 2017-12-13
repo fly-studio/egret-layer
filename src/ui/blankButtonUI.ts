@@ -8,19 +8,17 @@ namespace layer.ui {
 		}
 
 		public onAddedToStage(e: egret.Event): void {
-			this.graphics.beginFill(0x0, 0);
-			this.graphics.drawRect(0, 0, this.width, this.height);
-			this.graphics.endFill();
+
 			this.touchEnabled = true;
 			this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onTap, this);
-		}
+			this.addEventListener(egret.Event.RESIZE, this.onResize, this);
 
-		public onRemovedFromStage(e: egret.Event): void {
-			this.removeAllEventListeners();
+			this.onResize();
 		}
 
 		public removeAllEventListeners(): void {
 			this.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.onTap, this);
+			this.removeEventListener(egret.Event.RESIZE, this.onResize, this);
 		}
 
 		protected onTap(event: egret.TouchEvent) {
@@ -30,5 +28,12 @@ namespace layer.ui {
 			}
 		}
 
+		protected onResize(event?: egret.Event)
+		{
+			this.graphics.clear();
+			this.graphics.beginFill(0x0, 0);
+			this.graphics.drawRect(0, 0, this.width, this.height);
+			this.graphics.endFill();
+		}
 	}
 }

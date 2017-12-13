@@ -105,7 +105,6 @@ namespace layer.ui {
 
 		public onRemovedFromStage(e: egret.Event) : void
 		{
-			this.removeAllEventListeners();
 			this.status.clear();
 			this._configList = [];
 			this._groupList = [];

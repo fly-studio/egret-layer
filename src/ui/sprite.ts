@@ -5,6 +5,7 @@ namespace layer.ui {
 			super();
 
 			this.once(egret.Event.ADDED_TO_STAGE, this.onAddedToStage, this);
+			this.once(egret.Event.REMOVED_FROM_STAGE, this.removeAllEventListeners, this);
 			this.once(egret.Event.REMOVED_FROM_STAGE, this.onRemovedFromStage, this);
 		}
 
@@ -27,20 +28,28 @@ namespace layer.ui {
 			return this.stage instanceof egret.Stage ? this.stage : egret.lifecycle.stage as egret.Stage;
 		}
 
-		public addToStage(stage?: egret.Stage) : void {
-			stage = this.stage == null ? this.getStage() : stage;
+		public addToStage(stage?: egret.Stage): Sprite
+		{
+			stage = this.stage == undefined ? this.getStage() : stage;
 			stage.addChild(this);
+			return this;
 		}
 
 		public destroy(): void {
 			if (this.parent) this.parent.removeChild(this);
 		}
 
-		public abstract onAddedToStage(e: egret.Event) : void;
+		public abstract onAddedToStage(e: egret.Event): void;
 
-		public abstract onRemovedFromStage(e: egret.Event) : void;
+		public onRemovedFromStage(e: egret.Event): void
+		{
+			// 非必要
+		}
 
-		public abstract removeAllEventListeners() : void;
+		public removeAllEventListeners() : void
+		{
+			// 非必要
+		}
 
 	}
 }

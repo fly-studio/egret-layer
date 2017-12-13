@@ -1,31 +1,35 @@
 namespace layer.ui {
 	export class MaskUI extends layer.ui.Sprite {
 
+		private maskColor: number;
+		private maskAlpha: number;
+
 		constructor(color:number = 0x0, alpha: number = .8) {
 			super();
 
-			this.graphics.beginFill(color, alpha);
-			this.graphics.drawRect(0, 0, this.getStage().stageWidth, this.getStage().stageHeight);
-			this.graphics.endFill();
-		}
-
-		public addToStage(stage?: egret.Stage): void {
-
+			this.maskColor = color;
+			this.maskAlpha = alpha;
 		}
 
 		public onAddedToStage(e: egret.Event): void
 		{
-
+			this.width = this.width > 0 ? this.width : this.stage.stageWidth;
+			this.height = this.height > 0 ? this.height : this.stage.stageHeight;
+			this.onResize();
+			this.addEventListener(egret.Event.RESIZE, this.onResize, this);
 		}
 
-		public onRemovedFromStage(e: egret.Event): void
+		public removeAllEventListeners(): void {
+			this.removeEventListener(egret.Event.RESIZE, this.onResize, this);
+		}
+
+		protected onResize(event?: egret.Event)
 		{
-
+			this.graphics.clear();
+			this.graphics.beginFill(this.maskColor, this.maskAlpha);
+			this.graphics.drawRect(0, 0, this.width, this.height);
+			this.graphics.endFill();
 		}
 
-		public removeAllEventListeners(): void
-		{
-
-		}
 	}
 }

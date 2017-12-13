@@ -15,10 +15,6 @@ namespace layer.ui {
 			this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onTap, this);
 		}
 
-		public onRemovedFromStage(e: egret.Event): void {
-			this.removeAllEventListeners();
-		}
-
 		public removeAllEventListeners(): void {
 			this.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.onTap, this);
 		}
