@@ -1,13 +1,13 @@
 namespace layer.timer {
 	export class Countdown extends egret.EventDispatcher{
-		private _duration: number = 0;
-		private _remaining: number;
+		protected _duration: number = 0;
+		protected _remaining: number;
 
-		private timer: egret.Timer;
-		private fromTime: number;
-		private paused: boolean;
+		protected timer: egret.Timer;
+		protected fromTime: number;
+		protected paused: boolean;
 
-		private promise: DeferredPromise;
+		protected promise: DeferredPromise;
 		/**
 		 *
 		 * @param duration 需要倒計時的 毫秒數
@@ -30,7 +30,7 @@ namespace layer.timer {
 			return this._remaining;
 		}
 
-		private resolvePromise(): void {
+		protected resolvePromise(): void {
 			if (this.promise) {
 				this.promise.resolve(this.remaining);
 				delete this.promise; //刪除 比如內存洩露
@@ -38,7 +38,7 @@ namespace layer.timer {
 			}
 		}
 
-		private rejectPromise(): void {
+		protected rejectPromise(): void {
 			if (this.promise) {
 				this.promise.reject(this.remaining);
 				delete this.promise; //刪除 比如內存洩露
@@ -46,7 +46,7 @@ namespace layer.timer {
 			}
 		}
 
-		private clearTimer(): void {
+		protected clearTimer(): void {
 			if (this.timer) {
 				this.timer.stop();
 				this.timer.removeEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
@@ -73,7 +73,7 @@ namespace layer.timer {
 			return this.promise.promise();
 		}
 
-		private onTimer(event: egret.TimerEvent): void
+		protected onTimer(event: egret.TimerEvent): void
 		{
 			if (this.paused) return;
 

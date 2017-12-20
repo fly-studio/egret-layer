@@ -10,12 +10,12 @@ namespace layer.ui {
 	}
 	export class LoadingUI extends layer.ui.Sprite {
 
-		private textField: egret.TextField;
-		private _configList: ResourceConfig[];
-		private _groupList: string[];
-		private _themeList: string[];
-		private status: Map<string, LoadStatus>;
-		private resURI: string;
+		protected textField: egret.TextField;
+		protected _configList: ResourceConfig[];
+		protected _groupList: string[];
+		protected _themeList: string[];
+		protected status: Map<string, LoadStatus>;
+		protected resURI: string;
 
 		public set configList(value: ResourceConfig[]) {
 			this._configList = value;
@@ -158,7 +158,7 @@ namespace layer.ui {
 		 * @param {Function}      onComplete
 		 * @param {any}           thisObject
 		 */
-		private loadConfig(resourceConfig: ResourceConfig): DeferredPromise {
+		protected loadConfig(resourceConfig: ResourceConfig): DeferredPromise {
 			var dfd = new DeferredPromise();
 			let { resourceFile, path } = resourceConfig;
 			// 必須先添加到Map 不然已緩存的項目的成功事件會在loadConfig就觸發了
@@ -179,7 +179,7 @@ namespace layer.ui {
 		 * 读取 eui的皮肤文件
 		 * @param {string} themeName
 		 */
-		private loadTheme(themeName: string): DeferredPromise {
+		protected loadTheme(themeName: string): DeferredPromise {
 			var dfd = new DeferredPromise();
 			themeName = this.resURI + themeName;
 			// 必須先添加到Map 不然已緩存的項目中 成功事件會在loadGroup就觸發了
@@ -204,7 +204,7 @@ namespace layer.ui {
 		 * @param {Function} onComplete
 		 * @param {any}      thisObject
 		 */
-		private loadGroup(groupName: string) : DeferredPromise {
+		protected loadGroup(groupName: string) : DeferredPromise {
 			var dfd = new DeferredPromise();
 			// 必須先添加到Map 不然已緩存的項目中 成功事件會在loadGroup就觸發了
 			this.status.set(groupName, {
@@ -216,16 +216,16 @@ namespace layer.ui {
 			return dfd;
 		};
 
-		private onConfigError(event: RES.ResourceEvent): void {
+		protected onConfigError(event: RES.ResourceEvent): void {
 			//此函数只报错，但是不知道是那个config，具体还是需要去process中处理
 
 		}
 
-		private onConfigComplete(event: RES.ResourceEvent): void {
+		protected onConfigComplete(event: RES.ResourceEvent): void {
 			//此函数无法知道是哪个config，只能在process中判断是否load
 		}
 
-		private onResourceLoadComplete(event: RES.ResourceEvent) : void {
+		protected onResourceLoadComplete(event: RES.ResourceEvent) : void {
 			if (DEBUG) console.warn("Group:" + event.groupName + " loaded successful.");
 
 			if (this.status.has(event.groupName)) {
@@ -237,7 +237,7 @@ namespace layer.ui {
 			}
 		};
 
-		private onItemLoadError(event: RES.ResourceEvent) : void {
+		protected onItemLoadError(event: RES.ResourceEvent) : void {
 			if (DEBUG) console.log("Url:" + event.resItem.url + " has failed to load");
 			//Config 失败
 			if (event.groupName == "RES__CONFIG") {
@@ -252,14 +252,14 @@ namespace layer.ui {
 			//忽略 Group 读取失败的情况
 		};
 
-		private onResourceLoadError(event: RES.ResourceEvent) : void {
+		protected onResourceLoadError(event: RES.ResourceEvent) : void {
 			if (DEBUG) console.warn("Group:" + event.groupName + " has failed to load");
 			//忽略加载失败的项目
 			//Ignore the loading failed projects
 			RES.ResourceEvent.dispatchResourceEvent(event.target, RES.ResourceEvent.GROUP_COMPLETE, event.groupName);
 		}
 
-		private onResourceProgress(event: RES.ResourceEvent) : void {
+		protected onResourceProgress(event: RES.ResourceEvent) : void {
 			let name:string = event.groupName;
 			if (event.groupName == "RES__CONFIG") { //读取Config
 				name =  'config: ' + (event.resItem && event.resItem.name ? event.resItem.name : '');

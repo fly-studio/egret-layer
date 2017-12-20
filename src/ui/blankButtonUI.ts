@@ -1,7 +1,7 @@
 namespace layer.ui {
 	export class BlankButtonUI extends layer.ui.Sprite {
 
-		private soundRes: string;
+		protected soundRes: string;
 		constructor(soundRes?: string) {
 			super();
 			this.soundRes = soundRes;

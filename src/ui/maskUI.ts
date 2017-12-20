@@ -1,8 +1,8 @@
 namespace layer.ui {
 	export class MaskUI extends layer.ui.Sprite {
 
-		private maskColor: number;
-		private maskAlpha: number;
+		protected maskColor: number;
+		protected maskAlpha: number;
 
 		constructor(color:number = 0x0, alpha: number = .8) {
 			super();

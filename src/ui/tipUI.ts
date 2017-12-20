@@ -20,13 +20,13 @@ namespace layer.ui {
 
 	export class TipUI extends layer.ui.Sprite {
 
-		private tipSprite: egret.Sprite;
-		private options: TipOptionsInterface;
-		private titleHeight:number = 70;
-		private readonly contentPadding:number = 15;
-		private readonly buttonMaxHeight:number = 75;
-		private interval:number;
-		private deltaPoint:egret.Point;
+		protected tipSprite: egret.Sprite;
+		protected options: TipOptionsInterface;
+		protected titleHeight:number = 70;
+		protected readonly contentPadding:number = 15;
+		protected readonly buttonMaxHeight:number = 75;
+		protected interval:number;
+		protected deltaPoint:egret.Point;
 
 		public get textColor():number {
 			return this.options.textColor;
@@ -112,7 +112,7 @@ namespace layer.ui {
 			this.timeoutDisappear();
 		}
 
-		private renderClient() : void
+		protected renderClient() : void
 		{
 			this.removeAllEventListeners();
 			this.tipSprite.removeChildren();
@@ -226,7 +226,7 @@ namespace layer.ui {
 			this.addChild(tipSprite);
 		}
 
-		private timeoutDisappear(): void {
+		protected timeoutDisappear(): void {
 			if (this.interval)
 				clearTimeout(this.interval);
 
@@ -236,7 +236,7 @@ namespace layer.ui {
 				}, this.timeout);
 		}
 
-		private bindEvents() : void
+		protected bindEvents() : void
 		{
 			let titleSprite:egret.Sprite = this.tipSprite.getChildByName('title') as egret.Sprite;
 			if (titleSprite) {
@@ -277,7 +277,7 @@ namespace layer.ui {
 			}
 		}
 
-		private onClick(e: egret.Event): void {
+		protected onClick(e: egret.Event): void {
 			e.stopPropagation();
 			let btn:egret.Sprite = e.currentTarget as egret.Sprite;
 			let buttonsSprite:egret.Sprite = this.tipSprite.getChildByName('buttons') as egret.Sprite;
@@ -287,15 +287,15 @@ namespace layer.ui {
 				this.buttons[i].onClick.call(this, e);
 		}
 
-		private onTouchBegin(e: egret.TouchEvent): void {
+		protected onTouchBegin(e: egret.TouchEvent): void {
 			this.deltaPoint = new egret.Point(e.stageX - this.tipSprite.x, e.stageY - this.tipSprite.y);
 		}
 
-		private onTouchEnd(e: egret.TouchEvent): void {
+		protected onTouchEnd(e: egret.TouchEvent): void {
 			this.deltaPoint = null;
 		}
 
-		private onTouchMove(e: egret.TouchEvent): void {
+		protected onTouchMove(e: egret.TouchEvent): void {
 			let x:number = e.stageX - this.deltaPoint.x;
 			let y:number = e.stageY - this.deltaPoint.y;
 

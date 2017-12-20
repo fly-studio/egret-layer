@@ -1,7 +1,7 @@
 namespace layer.ui.ready {
 	export class CircleUI extends layer.ui.Ready {
 
-		private circleSprite: egret.Sprite;
+		protected circleSprite: egret.Sprite;
 
 		public onAddedToStage(event: egret.Event): void {
 			let radius: number = this.stage.stageHeight;

@@ -1,8 +1,8 @@
 namespace layer.ui {
 	export class ButtonUI extends layer.ui.Sprite {
 
-		private bmpRes: string;
-		private soundRes: string;
+		protected bmpRes: string;
+		protected soundRes: string;
 		constructor(bmpRes: string, soundRes?: string) {
 			super();
 			this.bmpRes = bmpRes;
