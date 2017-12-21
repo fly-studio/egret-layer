@@ -16,6 +16,7 @@ namespace layer.ui {
 		protected _themeList: string[];
 		protected status: Map<string, LoadStatus>;
 		protected resURI: string;
+		protected resVersion: string;
 
 		public set configList(value: ResourceConfig[]) {
 			this._configList = value;
@@ -41,11 +42,12 @@ namespace layer.ui {
 			return this._groupList;
 		}
 
-		constructor(resURI: string = '')
+		constructor(resURI: string = '', resVersion?: string)
 		{
 			super();
 
-			this.resURI = resURI.length > 0 ? resURI : (window['resURI'] != undefined ? window['resURI'] : '') ;
+			this.resURI = resURI.length > 0 ? resURI : (window['resURI'] != undefined ? window['resURI'] : '');
+			this.resVersion = resVersion ? resVersion : (window['resVersion'] != undefined ? window['resVersion'] : '1.0');
 			if (this.resURI.length > 0 && this.resURI.substring(this.resURI.length - 1) != '/') this.resURI += '/';
 			this._configList = [];
 			this._groupList = [];
@@ -164,7 +166,7 @@ namespace layer.ui {
 			// 必須先添加到Map 不然已緩存的項目的成功事件會在loadConfig就觸發了
 
 			if (path == undefined) path = resourceFile.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '') + '/';
-			resourceFile = this.resURI + resourceFile;
+			resourceFile = http.urlVersion(this.resURI + resourceFile, this.resVersion);
 			path = this.resURI + path;
 			this.status.set('config: ' + resourceFile, {
 				dfd,
@@ -181,7 +183,7 @@ namespace layer.ui {
 		 */
 		protected loadTheme(themeName: string): DeferredPromise {
 			var dfd = new DeferredPromise();
-			themeName = this.resURI + themeName;
+			themeName = http.urlVersion(this.resURI + themeName, this.resVersion);
 			// 必須先添加到Map 不然已緩存的項目中 成功事件會在loadGroup就觸發了
 			this.status.set('theme: ' + themeName, {
 				dfd,
