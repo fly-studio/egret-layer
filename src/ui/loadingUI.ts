@@ -1,14 +1,24 @@
+/// <reference path="sprite.ts" />
+
 namespace layer.ui {
 	export interface ResourceConfig {
 		resourceFile: string,
 		path?: string
 	}
 	export interface LoadStatus {
-		dfd: DeferredPromise;
 		loaded: number;
 		total: number;
 	}
-	export class LoadingUI extends layer.ui.Sprite {
+
+	class LoadingUIProgress implements RES.PromiseTaskReporter {
+
+		constructor(public groupName: string, public blankLoadingUI: BlankLoadingUI) {}
+		public onProgress(current: number, total: number, resItem: RES.ResourceInfo | undefined): void {
+			this.blankLoadingUI.onGroupProgress(this.groupName, current, total, resItem)
+		}
+	}
+
+	export class BlankLoadingUI extends Sprite  {
 
 		protected textField: egret.TextField;
 		protected _configList: ResourceConfig[];
@@ -56,11 +66,55 @@ namespace layer.ui {
 			RES.setMaxLoadingThread(3);
 		};
 
+
+		public addConfigFile(resourceFile: string, path: string): this {
+			this._configList.push({
+				resourceFile,
+				path
+			});
+			return this;
+		}
+
+		public addConfigFiles(...args: Array<ResourceConfig>): this {
+			for (let arg of args) {
+				this.addConfigFile(arg.resourceFile, arg.path);
+			}
+			return this;
+		}
+
+		public addGroupNames(...args: Array<string>): this {
+			for (let arg of args) {
+				this._groupList.push(arg)
+			}
+			return this;
+		}
+
+		public addThemeFiles(...args: Array<string>): this {
+			this._themeList.push(...args)
+			return this;
+		}
+
+		protected updateStatus(name: string, loaded: number, total?: number): void {
+			if (this.status.has(name)) {
+				let s = this.status.get(name);
+				s.loaded = loaded;
+				if (typeof total != 'undefined') {
+					s.total = total
+				}
+
+				this.calcTotalProgress()
+			}
+		}
+
 		/**
 		 * 设置好resourceConfig和groupList之后，执行本函数
 		 * 注意，修改configList/groupList后重新调用load，会重新计算百分百
+		 *
+		 * @param {boolean} ignore_config_error: 忽略config.json文件读取错误
+		 * @param {boolean} ignore_theme_error: 忽略theme.json文件读取错误
+		 * @param {boolean} ignore_group_error: 忽略group读取错误
 		 */
-		public async load()
+		public async load(ignore_config_error: boolean = true, ignore_theme_error: boolean = true, ignore_group_error: boolean = true): Promise<any>
 		{
 			if (this._configList.length + this._groupList.length + this._themeList.length <= 0) {
 				throw new Error('Please set configList/groupList/themeList first.'); // runtime error
@@ -68,25 +122,30 @@ namespace layer.ui {
 			//config
 			let promises: Promise<any>[] = [];
 			for (let config of this._configList) {
-				let dfd = this.loadConfig(config);
-				promises.push(dfd.promise());
+				let dfd = this.loadConfig(config, ignore_config_error);
+				promises.push(dfd);
 			}
+
 			await Promise.all(promises); //等待全部config读取完毕
+
 			//theme
 			promises = [];
 			for (let theme of this._themeList) {
-				let dfd = this.loadTheme(theme);
-				promises.push(dfd.promise());
+				let dfd = this.loadTheme(theme, ignore_theme_error);
+				promises.push(dfd);
 			}
+
 			await Promise.all(promises); //等待全部theme读取完毕
+
 			//group
 			promises = [];
 			for (let group of this._groupList)
 			{
-				let dfd = this.loadGroup(group);
-				promises.push(dfd.promise());
+				let dfd = this.loadGroup(group, ignore_group_error);
+				promises.push(dfd);
 			}
-			return await Promise.all(promises).then(() => this.destroy()); // 同时请求这几个Group
+
+			await Promise.all(promises).then(() => this.destroy()); // 同时请求这几个Group
 		}
 
 		public onAddedToStage(e: egret.Event) : void
@@ -101,8 +160,6 @@ namespace layer.ui {
 			this.textField.textAlign = egret.HorizontalAlign.CENTER;
 			this.textField.verticalAlign = egret.VerticalAlign.MIDDLE;
 			this.addChild(this.textField);
-
-			this.bindEvents();
 		}
 
 		public onRemovedFromStage(e: egret.Event) : void
@@ -113,35 +170,17 @@ namespace layer.ui {
 			this._themeList = [];
 		}
 
-		public removeAllEventListeners() : void
-		{
-			RES.removeEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
-			RES.removeEventListener(RES.ResourceEvent.CONFIG_LOAD_ERROR, this.onConfigError, this);
-			RES.removeEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
-			RES.removeEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
-			RES.removeEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
-			RES.removeEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
-		}
-
-		public bindEvents() : void
-		{
-			RES.addEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
-			RES.addEventListener(RES.ResourceEvent.CONFIG_LOAD_ERROR, this.onConfigError, this);
-			RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
-			RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
-			RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
-			RES.addEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, this.onItemLoadError, this);
-		}
-
 		/**
 		 * [setProgress description]
 		 * @param {number} current
 		 * @param {number} total
 		 */
 		public setProgress(current: number, total: number, resource?: RES.ResourceItem) : void {
-			if (!this.textField) return;
+			if (!this.textField)
+				return;
 			let percent: number = total > 0 ? current / total * 100 : 0;
-			if (percent > 100) percent = 100;
+			if (percent > 100)
+				percent = 100;
 			this.textField.text = "Loading..." + Math.round(percent) + '%';
 		}
 
@@ -157,134 +196,104 @@ namespace layer.ui {
 		/**
 		 * 读取Config
 		 * @param {Array<string>} resourceFiles
-		 * @param {Function}      onComplete
-		 * @param {any}           thisObject
+		 * @param {bool}      ignore_config_error
 		 */
-		protected loadConfig(resourceConfig: ResourceConfig): DeferredPromise {
-			var dfd = new DeferredPromise();
+		protected async loadConfig(resourceConfig: ResourceConfig, ignore_config_error: boolean = true): Promise<any> {
 			let { resourceFile, path } = resourceConfig;
 			// 必須先添加到Map 不然已緩存的項目的成功事件會在loadConfig就觸發了
 
 			if (path == undefined) path = resourceFile.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '') + '/';
 			resourceFile = http.urlVersion(this.resURI + resourceFile, this.resVersion);
 			path = this.resURI + path;
-			this.status.set('config: ' + resourceFile, {
-				dfd,
+
+			const name = 'config: ' + resourceFile;
+			this.status.set(name, {
 				loaded: 0,
 				total: 1
 			});
-			RES.loadConfig(resourceFile, path);
-			return dfd;
+
+			try {
+				const value = await RES.loadConfig(resourceFile, path);
+				this.updateStatus(name, 1);
+
+				return value;
+			} catch (reason) {
+				this.updateStatus(name, 0);
+				if (!ignore_config_error)
+					return Promise.reject(reason);
+			}
 		}
 
 		/**
 		 * 读取 eui的皮肤文件
 		 * @param {string} themeName
+		 * @param {boolean} ignore_theme_error
 		 */
-		protected loadTheme(themeName: string): DeferredPromise {
-			var dfd = new DeferredPromise();
+		protected loadTheme(themeName: string, ignore_theme_error: boolean = true): Promise<any> {
 			themeName = http.urlVersion(this.resURI + themeName, this.resVersion);
-			// 必須先添加到Map 不然已緩存的項目中 成功事件會在loadGroup就觸發了
-			this.status.set('theme: ' + themeName, {
-				dfd,
+
+			const name = 'theme: ' + themeName;
+
+			this.status.set(name, {
 				loaded: 0,
 				total: 1,
 			});
-			let theme = new eui.Theme(themeName, this.getStage());
-			theme.once(eui.UIEvent.COMPLETE, () => {
-				let status = this.status.get('theme: ' + themeName);
-				if (status) status.loaded = 1;
-				this.calcTotalProgress();
-				dfd.resolve();
-			}, this);
-			return dfd;
+
+			return new Promise((resolve, reject) => {
+				let theme = new eui.Theme(themeName, this.getStage());
+				theme.once(eui.UIEvent.COMPLETE, () => {
+					if (DEBUG)
+						console.info("Theme: " + themeName + " loaded.");
+
+					this.updateStatus(name, 1)
+					resolve(name);
+				}, this);
+			});
 		}
 
 		/**
 		 * 读取Group文件
 		 * @param {string}   groupName
-		 * @param {Function} onComplete
-		 * @param {any}      thisObject
+		 * @param {boolean}  ignore_group_error
 		 */
-		protected loadGroup(groupName: string) : DeferredPromise {
-			var dfd = new DeferredPromise();
-			// 必須先添加到Map 不然已緩存的項目中 成功事件會在loadGroup就觸發了
+		protected async loadGroup(groupName: string, ignore_group_error: boolean = true) : Promise<any> {
+			const total = RES.getGroupByName(groupName).length;
+
 			this.status.set(groupName, {
-				dfd,
 				loaded: 0,
-				total: RES.getGroupByName(groupName).length,
+				total,
 			});
-			RES.loadGroup(groupName);
-			return dfd;
-		};
 
-		protected onConfigError(event: RES.ResourceEvent): void {
-			//此函数只报错，但是不知道是那个config，具体还是需要去process中处理
+			try {
+				const value = await RES.loadGroup(groupName, 0, new LoadingUIProgress(groupName, this));
+				if (DEBUG)
+					console.info("Group: " + groupName + " loaded.");
 
-		}
+				this.updateStatus(groupName, total);
 
-		protected onConfigComplete(event: RES.ResourceEvent): void {
-			//此函数无法知道是哪个config，只能在process中判断是否load
-		}
-
-		protected onResourceLoadComplete(event: RES.ResourceEvent) : void {
-			if (DEBUG) console.warn("Group:" + event.groupName + " loaded successful.");
-
-			if (this.status.has(event.groupName)) {
-				if (DEBUG) console.warn("Group:" + event.groupName + " resolved.");
-
-				let status = this.status.get(event.groupName);
-				status.dfd.resolve(event.groupName);
-				status.loaded = status.total;
+				return value;
+			} catch (reason) {
+				if (DEBUG)
+					console.warn("Group: " + groupName + " failed: " + reason);
+				if (!ignore_group_error)
+					return Promise.reject(reason);
 			}
 		};
 
-		protected onItemLoadError(event: RES.ResourceEvent) : void {
-			if (DEBUG) console.log("Url:" + event.resItem.url + " has failed to load");
-			//Config 失败
-			if (event.groupName == "RES__CONFIG") {
-				let name = 'config: ' + (event.resItem && event.resItem.name ? event.resItem.name : '');
-				if (this.status.has(name)) {
-					let status = this.status.get(name);
-					status.loaded = 0;
-					status.dfd.reject(event.resItem.name);
-				}
-			}
+		/**
+		 * 读取group时进度回调
+		 * @param groupName
+		 * @param current
+		 * @param total
+		 * @param resItem
+		 */
+		public onGroupProgress(groupName: string, current: number, total: number, resItem: RES.ResourceInfo | undefined): void {
 
-			//忽略 Group 读取失败的情况
-		};
+			if (DEBUG && typeof resItem != 'undefined')
+				console.log("Url: " + resItem.url + " loaded of group: " + groupName);
 
-		protected onResourceLoadError(event: RES.ResourceEvent) : void {
-			if (DEBUG) console.warn("Group:" + event.groupName + " has failed to load");
-			//忽略加载失败的项目
-			//Ignore the loading failed projects
-			RES.ResourceEvent.dispatchResourceEvent(event.target, RES.ResourceEvent.GROUP_COMPLETE, event.groupName);
+			this.updateStatus(groupName, current)
 		}
-
-		protected onResourceProgress(event: RES.ResourceEvent) : void {
-			let name:string = event.groupName;
-			if (event.groupName == "RES__CONFIG") { //读取Config
-				name =  'config: ' + (event.resItem && event.resItem.name ? event.resItem.name : '');
-				if (this.status.has(name)) {
-					let status = this.status.get(name);
-					if (event.resItem.loaded) {
-						status.loaded = 1;
-						status.dfd.resolve(event.resItem.name); //成功
-					} else {
-						// 如果在同一个LoadingUI下 设置相同的resourceFile路径，第二个会因为有缓存而读取失败
-						status.dfd.reject(event.resItem.name); //失败
-					}
-				}
-			} else {
-				if (this.status.has(name)) {
-					let status = this.status.get(name);
-					status.loaded = event.itemsLoaded;
-				}
-			}
-
-			this.calcTotalProgress(event.resItem);
-
-		};
 
 	}
 }

@@ -1,3 +1,5 @@
+/// <reference path="sprite.ts" />
+
 namespace layer.ui {
 	export class MaskUI extends layer.ui.Sprite {
 

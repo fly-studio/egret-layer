@@ -1,7 +1,25 @@
+/// <reference path="ready.ts" />
+
 namespace layer.ui.ready {
 	export class CircleUI extends layer.ui.Ready {
 
 		protected circleSprite: egret.Sprite;
+
+		private d2r(d: number): number
+		{
+			return (d * Math.PI) / 180;
+		}
+
+		/**
+		 * 计算圆上面的某点
+		 * @param {Point} circlePos 圆心
+		 * @param {number} radius 半径
+		 * @param {number} angle 弧度，从数学 正x坐标开始 顺时针的弧度
+		 */
+		private circlePoint(circlePos: egret.Point, radius: number, angle: number): egret.Point
+		{
+			return new egret.Point(circlePos.x + Math.cos(angle) * radius, circlePos.y + Math.sin(angle) * radius);
+		}
 
 		public onAddedToStage(event: egret.Event): void {
 			let radius: number = this.stage.stageHeight;
@@ -24,7 +42,7 @@ namespace layer.ui.ready {
 				let bmp: layer.ui.BitmapUI = new layer.ui.BitmapUI(v.imageRes);
 				bmp.anchorOffsetX = bmp.width / 2;
 				bmp.anchorOffsetY = bmp.height / 2;
-				let pt: sharp.Point = sharp.circlePoint(new sharp.Point(radius, radius), radius, sharp.d2r(avg * i));
+				let pt: egret.Point = this.circlePoint(new egret.Point(radius, radius), radius, this.d2r(avg * i));
 				bmp.x = pt.x;
 				bmp.y = pt.y;
 				bmp.rotation = avg * (i + 1);
@@ -48,7 +66,7 @@ namespace layer.ui.ready {
 				if (this.readyRes.length == 0)
 				{
 					this.destroy();
-					resolve();
+					resolve(null);
 					return;
 				}
 				let tween: egret.Tween = egret.Tween.get(this.circleSprite).call(() => {
@@ -66,7 +84,7 @@ namespace layer.ui.ready {
 				}
 				tween.call(() => {
 					this.destroy();
-					resolve();
+					resolve(null);
 				}, this);
 			});
 		}

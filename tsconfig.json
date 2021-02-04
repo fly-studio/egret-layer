@@ -13,10 +13,12 @@
 		]
 	},
 	"files": [
-		"../_/bin/_.d.ts"
+		"../lp/bin/lp.d.ts",
+		"../lp/typings/axios.d.ts",
+		"../lp/typings/jquery.d.ts"
 	],
 	"include": [
-		"src"
+		"src",
 	],
 	"exclude": [
 		"node_modules"
